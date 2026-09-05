@@ -51,11 +51,11 @@ PROCESS_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(PROCESS_SRC))
 SYSCALL_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SYSCALL_SRC))
 LIB_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIB_SRC))
 
-KERNEL_OBJS = $(ENTRY_OBJ) $(KERNEL_OBJ) $(DRIVER_OBJS) $(MEMORY_OBJS) $(PROCESS_OBJS) $(SYSCALL_OBJS) $(LIB_OBJS)
+ALL_OBJS = $(BOOT_OBJ) $(ENTRY_OBJ) $(KERNEL_OBJ) $(DRIVER_OBJS) $(MEMORY_OBJS) $(PROCESS_OBJS) $(SYSCALL_OBJS) $(LIB_OBJS)
 
 all: $(KERNEL_BIN) $(ISO_IMAGE)
 
-# Bootloader - compile as flat binary (FIXED: was -f elf64)
+# Bootloader
 $(BUILD_DIR)/boot.o: $(BOOT_SRC)
 	mkdir -p $(@D)
 	$(AS) -f bin -o $@ $<
@@ -91,20 +91,16 @@ $(BUILD_DIR)/%.o: kernel/syscall/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Library
+
 $(BUILD_DIR)/%.o: lib/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link kernel (FIXED: compile boot separately, link only kernel objects)
-$(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS)
+# Link kernel
+$(KERNEL_BIN): $(ALL_OBJS)
 	mkdir -p $(@D)
-	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
-
-# Combine boot.o (binary) and kernel.elf -> final binary (FIXED)
-$(KERNEL_BIN): $(BOOT_OBJ) $(BUILD_DIR)/kernel.elf
-	mkdir -p $(@D)
-	cat $(BOOT_OBJ) $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/kernel_temp.bin
-	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel_temp.bin $@
+	$(LD) $(LDFLAGS) -o $(BUILD_DIR)/kernel.elf $(ALL_OBJS)
+	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel.elf $@
 
 # Create ISO
 $(ISO_IMAGE): $(KERNEL_BIN)
