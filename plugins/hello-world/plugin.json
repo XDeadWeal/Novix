@@ -1,0 +1,8 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "description": "A simple hello world plugin for Novix OS",
+  "author": "XDeadWeal",
+  "license": "MIT",
+  "homepage": "https://github.com/XDeadWeal/Novix"
+}
