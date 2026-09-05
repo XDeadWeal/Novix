@@ -41,7 +41,7 @@ LIB_SRC = \
 	lib/stdlib.c
 
 # Object files
-BOOT_BIN = $(BUILD_DIR)/boot.bin
+BOOT_OBJ = $(BUILD_DIR)/boot.o
 ENTRY_OBJ = $(BUILD_DIR)/entry.o
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 
@@ -55,8 +55,8 @@ KERNEL_OBJS = $(ENTRY_OBJ) $(KERNEL_OBJ) $(DRIVER_OBJS) $(MEMORY_OBJS) $(PROCESS
 
 all: $(KERNEL_BIN) $(ISO_IMAGE)
 
-# Bootloader - compile as flat binary
-$(BUILD_DIR)/boot.bin: $(BOOT_SRC)
+# Bootloader - compile as flat binary (FIXED: was -f elf64)
+$(BUILD_DIR)/boot.o: $(BOOT_SRC)
 	mkdir -p $(@D)
 	$(AS) -f bin -o $@ $<
 
@@ -95,15 +95,15 @@ $(BUILD_DIR)/%.o: lib/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link kernel
+# Link kernel (FIXED: compile boot separately, link only kernel objects)
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS)
 	mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
 
-# Combine boot.bin and kernel.elf into final binary
-$(KERNEL_BIN): $(BOOT_BIN) $(BUILD_DIR)/kernel.elf
+# Combine boot.o (binary) and kernel.elf -> final binary (FIXED)
+$(KERNEL_BIN): $(BOOT_OBJ) $(BUILD_DIR)/kernel.elf
 	mkdir -p $(@D)
-	cat $< $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/kernel_temp.bin
+	cat $(BOOT_OBJ) $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/kernel_temp.bin
 	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel_temp.bin $@
 
 # Create ISO
