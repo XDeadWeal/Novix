@@ -10,30 +10,39 @@ LDFLAGS = -m elf_x86_64 -nostdlib -T boot/link.ld -no-pie
 BUILD_DIR = build
 BIN_DIR = bin
 KERNEL_BIN = $(BIN_DIR)/novix.bin
+BOOT_BIN = $(BUILD_DIR)/boot.bin
 ISO_IMAGE = $(BIN_DIR)/novix.iso
 
+# Source files
 BOOT_SRC = boot/boot.asm
 ENTRY_SRC = kernel/entry.asm
 KERNEL_SRC = kernel/kernel.c
 
-DRIVERS_SRC = \
-	drivers/vga/vga.c \
-	drivers/keyboard/keyboard.c \
+# Driver sources
+DRIVERS_SRC = ${T}
+	drivers/vga/vga.c ${T}
+	drivers/keyboard/keyboard.c ${T}
 	drivers/serial/serial.c
 
-MEMORY_SRC = \
-	kernel/memory/pmm.c \
+# Memory sources
+MEMORY_SRC = ${T}
+	kernel/memory/pmm.c ${T}
 	kernel/memory/vmm.c
 
+# Process sources
 PROCESS_SRC = kernel/process/scheduler.c
+
+# Syscall sources
 SYSCALL_SRC = kernel/syscall/syscall.c
 
-LIB_SRC = \
-	lib/stdio.c \
-	lib/string.c \
+# Library sources
+LIB_SRC = ${T}
+	lib/stdio.c ${T}
+	lib/string.c ${T}
 	lib/stdlib.c
 
-BOOT_BIN = $(BUILD_DIR)/boot.bin
+# Object files
+BOOT_OBJ = $(BUILD_DIR)/boot.o
 ENTRY_OBJ = $(BUILD_DIR)/entry.o
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 
@@ -47,55 +56,71 @@ KERNEL_OBJS = $(ENTRY_OBJ) $(KERNEL_OBJ) $(DRIVER_OBJS) $(MEMORY_OBJS) $(PROCESS
 
 all: $(KERNEL_BIN) $(ISO_IMAGE)
 
-$(BUILD_DIR)/boot.bin: $(BOOT_SRC)
+# Bootloader - compile as flat binary
+$(BOOT_BIN): $(BOOT_SRC)
 	mkdir -p $(@D)
 	$(AS) -f bin -o $@ $<
 
+# Entry point
 $(BUILD_DIR)/entry.o: $(ENTRY_SRC)
 	mkdir -p $(@D)
 	$(AS) -f elf64 -o $@ $<
 
+# Kernel
 $(BUILD_DIR)/kernel.o: $(KERNEL_SRC)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Drivers
 $(BUILD_DIR)/%.o: drivers/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Memory
 $(BUILD_DIR)/%.o: kernel/memory/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Process
 $(BUILD_DIR)/%.o: kernel/process/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Syscall
 $(BUILD_DIR)/%.o: kernel/syscall/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Library
 $(BUILD_DIR)/%.o: lib/%.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+# Link kernel ELF
 $(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS)
 	mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
 
+# Combine boot.bin + kernel.elf into final binary
 $(KERNEL_BIN): $(BOOT_BIN) $(BUILD_DIR)/kernel.elf
 	mkdir -p $(@D)
-	cat $< $(BUILD_DIR)/kernel.elf > $(BUILD_DIR)/kernel_temp.bin
-	$(OBJCOPY) -O binary $(BUILD_DIR)/kernel_temp.bin $@
+	cat $(BOOT_BIN) $(BUILD_DIR)/kernel.elf > $@
+	$(OBJCOPY) -O binary $@ $@
 
+# Create ISO
 $(ISO_IMAGE): $(KERNEL_BIN)
 	mkdir -p $(@D)
 	genisoimage -R -b $(KERNEL_BIN) -no-emul-boot -boot-load-size 4 -o $@ $(BIN_DIR)/
 
+# Run in QEMU
 run: $(ISO_IMAGE)
 	$(QEMU) -cdrom $< -m 512M -serial stdio -no-reboot -no-shutdown
+
+# Build GUI version
+bootgui: $(KERNEL_BIN)
+	cp $(KERNEL_BIN) $(BIN_DIR)/bootgui.bin
 
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
-.PHONY: all clean run
+.PHONY: all clean run bootgui
