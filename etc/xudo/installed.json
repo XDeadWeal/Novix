@@ -1,1 +1,1 @@
-{"plugins": {}}
+{"plugins": {"hello-world": {"version": "1.0.0", "url": "https://github.com/XDeadWeal/Novix-Plugins/hello-world", "installed_at": "2026-09-05T00:00:00Z"}, "bootgui": {"version": "1.0.0", "url": "https://github.com/XDeadWeal/Novix-Plugins/bootgui", "installed_at": "2026-09-05T00:00:00Z"}}}
