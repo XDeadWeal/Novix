@@ -19,14 +19,14 @@ ENTRY_SRC = kernel/entry.asm
 KERNEL_SRC = kernel/kernel.c
 
 # Driver sources
-DRIVERS_SRC = \
-	drivers/vga/vga.c \
-	drivers/keyboard/keyboard.c \
+DRIVERS_SRC = ${T}
+	drivers/vga/vga.c ${T}
+	drivers/keyboard/keyboard.c ${T}
 	drivers/serial/serial.c
 
 # Memory sources
-MEMORY_SRC = \
-	kernel/memory/pmm.c \
+MEMORY_SRC = ${T}
+	kernel/memory/pmm.c ${T}
 	kernel/memory/vmm.c
 
 # Process sources
@@ -36,9 +36,9 @@ PROCESS_SRC = kernel/process/scheduler.c
 SYSCALL_SRC = kernel/syscall/syscall.c
 
 # Library sources
-LIB_SRC = \
-	lib/stdio.c \
-	lib/string.c \
+LIB_SRC = ${T}
+	lib/stdio.c ${T}
+	lib/string.c ${T}
 	lib/stdlib.c
 
 # Object files
