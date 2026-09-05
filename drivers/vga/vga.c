@@ -16,7 +16,7 @@ void vga_set_color(uint8_t fg, uint8_t bg) {
 
 void vga_clear() {
     for (int i = 0; i < 80 * 25; i++) {
-        vga_buffer[i].character = ' ';
+        vga_buffer[i].character = 32;
         vga_buffer[i].color = vga_color;
     }
     vga_set_cursor(0);
@@ -25,11 +25,8 @@ void vga_clear() {
 void vga_put_char(char c) {
     uint16_t pos = vga_cursor_pos;
     switch (c) {
-        case '\n': pos = (pos / 80 + 1) * 80; break;
-        case '\r': pos = (pos / 80) * 80; break;
-        case '\t':
-            for (int i = 0; i < 4; i++) vga_put_char(' ');
-            return;
+        case 10: pos = (pos / 80 + 1) * 80; break;
+        case 13: pos = (pos / 80) * 80; break;
         default:
             vga_buffer[pos].character = c;
             vga_buffer[pos].color = vga_color;
@@ -51,6 +48,12 @@ void vga_set_cursor(uint16_t position) {
     outb(VGA_DATA_REGISTER, position & 0xFF);
 }
 
+uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    __asm__ __volatile__ ("inb %%dx, %%al" : "=a"(ret) : "d"(port));
+    return ret;
+}
+
 void outb(uint16_t port, uint8_t value) {
-    __asm__ __volatile__ ("outb %0, %1" : : "a"(value), "dN"(port));
+    __asm__ __volatile__ ("outb %%al, %%dx" : : "a"(value), "d"(port));
 }
