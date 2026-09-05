@@ -1,6 +1,5 @@
 ; Novix OS - Bootloader (16-bit Real Mode)
 BITS 16
-ORG 0x7C00
 
 KERNEL_LOAD_ADDR equ 0x100000
 
