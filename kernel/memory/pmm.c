@@ -11,7 +11,7 @@ static int pmm_test_bit(uint32_t page);
 
 void pmm_init() {
     memset(pmm_bitmap, 0, sizeof(pmm_bitmap));
-    for (uint32_t i = 0; i < 256; i++) pmm_set_bit(i);
+    for (uint32_t i = 0; i < 512; i++) pmm_set_bit(i);
 }
 
 static void pmm_set_bit(uint32_t page) {
