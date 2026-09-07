@@ -12,12 +12,12 @@ start:
     mov [boot_drive], dl
 
     ; Load kernel from disk to 0x10000 (segment 0x1000:0x0000)
-    ; Read 48 sectors = 24KB from sector 2
+    ; Read 32 sectors = 16KB from sector 2
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
     mov ah, 0x02        ; Read sectors function
-    mov al, 48          ; 48 sectors = 24KB
+    mov al, 32          ; 32 sectors = 16KB
     mov ch, 0           ; Cylinder 0
     mov cl, 2           ; Start at sector 2
     mov dh, 0           ; Head 0
@@ -88,7 +88,7 @@ protected_mode:
     ; Copy kernel from 0x10000 to 0x100000 (1MB)
     mov esi, 0x10000
     mov edi, 0x100000
-    mov ecx, 6144       ; 24KB / 4 bytes
+    mov ecx, 4096       ; 16KB / 4 bytes
     rep movsd
 
     ; Debug: print '5' = kernel copied
@@ -106,13 +106,13 @@ protected_mode:
     rep stosd
 
     ; PML4[0] -> PDPT at 0x81000
-    mov dword [0x80000], 0x81000 | 3    ; Present + Writable
+    mov dword [0x80000], 0x81000 | 3
 
     ; PDPT[0] -> PD at 0x82000
-    mov dword [0x81000], 0x82000 | 3    ; Present + Writable
+    mov dword [0x81000], 0x82000 | 3
 
-    ; PD[0] -> 2MB page at 0x000000 (identity map, 2MB page)
-    mov dword [0x82000], 0x000000 | 0x83  ; Present + Writable + PS
+    ; PD[0] -> 2MB page at physical 0 (identity map)
+    mov dword [0x82000], 0x000000 | 0x83
 
     ; Load CR3
     mov eax, 0x80000
@@ -173,8 +173,8 @@ gdt:
     dw 0x0000, 0x0000
     db 0x00, 0x9A, 0xAF, 0x00
     ; 64-bit data segment (selector 0x20)
-    dw 0xFFFF, 0x0000
-    db 0x00, 0x92, 0xCF, 0x00
+    dw 0x0000, 0x0000
+    db 0x00, 0x92, 0xAF, 0x00
 gdt_end:
 
 gdt_descriptor:
