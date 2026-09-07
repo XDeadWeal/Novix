@@ -10,7 +10,7 @@ start:
     mov ss, ax
     mov sp, 0x7C00
     mov [boot_drive], dl
-    
+
     ; Load kernel from disk
     mov ax, 0x1000
     mov es, ax
@@ -30,7 +30,7 @@ start:
     in al, 0x92
     or al, 2
     out 0x92, al
-    
+
     ; Jump to kernel at 0x100000 (1MB)
     jmp 0x0000:0x100000
 
