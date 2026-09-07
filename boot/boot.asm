@@ -44,15 +44,15 @@ start:
     ; Load GDT
     lgdt [gdt_descriptor]
 
+    ; Debug: print '3' = GDT loaded
+    mov al, '3'
+    mov ah, 0x0E
+    int 0x10
+
     ; Enter protected mode
     mov eax, cr0
     or eax, 1           ; Set PE bit
     mov cr0, eax
-
-    ; Debug: print '3' = PE enabled
-    mov al, '3'
-    mov ah, 0x0E
-    int 0x10
 
     ; Far jump to 32-bit code segment (flush pipeline)
     jmp 0x08:protected_mode
@@ -111,8 +111,8 @@ protected_mode:
     ; PDPT[0] -> PD at 0x82000
     mov dword [0x81000], 0x82000 | 3    ; Present + Writable
 
-    ; PD[0] -> 2MB page at physical 0 (identity map)
-    mov dword [0x82000], 0x000000 | 0x83  ; Present + Writable + 2MB
+    ; PD[0] -> 2MB page at 0x000000 (identity map, 2MB page)
+    mov dword [0x82000], 0x000000 | 0x83  ; Present + Writable + PS
 
     ; Load CR3
     mov eax, 0x80000
@@ -173,7 +173,7 @@ gdt:
     dw 0x0000, 0x0000
     db 0x00, 0x9A, 0xAF, 0x00
     ; 64-bit data segment (selector 0x20)
-    dw 0x0000, 0x0000
+    dw 0xFFFF, 0x0000
     db 0x00, 0x92, 0xCF, 0x00
 gdt_end:
 
