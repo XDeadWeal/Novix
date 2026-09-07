@@ -3,8 +3,8 @@ CC = gcc
 OBJCOPY = objcopy
 QEMU = qemu-system-x86_64
 
-CFLAGS = -m64 -ffreestanding -O2 -Wall -Wextra -nostdlib -Iinclude -I.
-LDFLAGS = -m64 -ffreestanding -nostdlib -T boot/link.ld
+CFLAGS = -m64 -ffreestanding -O2 -Wall -Wextra -nostdlib -fno-exceptions -fno-asynchronous-unwind-tables -fno-unwind-tables -fno-ident -Iinclude -I.
+LDFLAGS = -m64 -ffreestanding -nostdlib -Wl,--no-seh -Wl,-e_start -T boot/link.ld
 
 BUILD_DIR = build
 BIN_DIR = bin
