@@ -1,5 +1,6 @@
 #include <kernel/memory/vmm.h>
 #include <kernel/memory/pmm.h>
+#include <lib/string.h>
 #include <stdint.h>
 
 static uint64_t* pml4t = 0;

@@ -1,18 +1,14 @@
 #include <kernel/vga.h>
+#include <kernel/io.h>
 #include <stdint.h>
 
 static uint8_t vga_color = 0x07;
 static uint16_t vga_cursor_pos = 0;
 static volatile struct vga_char* vga_buffer = (volatile struct vga_char*)VGA_MEMORY;
 
-void vga_init() {
-    vga_clear();
-    vga_set_cursor(0);
-}
+void vga_init() { vga_clear(); vga_set_cursor(0); }
 
-void vga_set_color(uint8_t fg, uint8_t bg) {
-    vga_color = (bg << 4) | (fg & 0x0F);
-}
+void vga_set_color(uint8_t fg, uint8_t bg) { vga_color = (bg << 4) | (fg & 0x0F); }
 
 void vga_clear() {
     for (int i = 0; i < 80 * 25; i++) {
@@ -30,13 +26,9 @@ void vga_put_char(char c) {
         default:
             vga_buffer[pos].character = c;
             vga_buffer[pos].color = vga_color;
-            pos++;
-            break;
+            pos++; break;
     }
-    if (pos >= 80 * 25) {
-        vga_clear();
-        pos = 0;
-    }
+    if (pos >= 80 * 25) { vga_clear(); pos = 0; }
     vga_set_cursor(pos);
 }
 
@@ -46,14 +38,4 @@ void vga_set_cursor(uint16_t position) {
     outb(VGA_DATA_REGISTER, (position >> 8) & 0xFF);
     outb(VGA_CTRL_REGISTER, 0x0F);
     outb(VGA_DATA_REGISTER, position & 0xFF);
-}
-
-uint8_t inb(uint16_t port) {
-    uint8_t ret;
-    __asm__ __volatile__ ("inb %%dx, %%al" : "=a"(ret) : "d"(port));
-    return ret;
-}
-
-void outb(uint16_t port, uint8_t value) {
-    __asm__ __volatile__ ("outb %%al, %%dx" : : "a"(value), "d"(port));
 }
