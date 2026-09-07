@@ -1,13 +1,5 @@
 #!/bin/bash
-echo "Uninstalling bootgui plugin..."
-
-# Remove binary
+echo "Uninstalling bootgui..."
 rm -f /usr/bin/bootgui
-
-# Remove config
-rm -rf /etc/bootgui
-
-# Remove shared files
-rm -rf /usr/share/bootgui
-
-echo "bootgui plugin uninstalled!"
+rm -rf /usr/share/bootgui /etc/bootgui
+echo "Done!"

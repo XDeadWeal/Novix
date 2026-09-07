@@ -1,16 +1,8 @@
 # Hello World Plugin
 
-A simple demonstration plugin for the Novix OS plugin system.
+Simple example plugin for Novix OS.
 
-## Usage
-
-After installation:
+## Install
 ```bash
-./hello
-```
-
-Or compile manually:
-```bash
-gcc -o hello src/hello.c
-./hello
+xudo install https://github.com/XDeadWeal/Novix-Plugins/hello-world
 ```

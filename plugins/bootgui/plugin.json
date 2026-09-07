@@ -5,5 +5,8 @@
   "author": "XDeadWeal",
   "license": "MIT",
   "homepage": "https://github.com/XDeadWeal/Novix",
-  "dependencies": ["gcc", "make"]
+  "dependencies": [
+    "gcc",
+    "make"
+  ]
 }

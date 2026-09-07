@@ -1,13 +1,19 @@
 #!/bin/bash
-XUDO_VERSION="1.0.0"
+# XUDO - Novix Plugin Manager v1.0.0
 XUDO_DIR="$(dirname "$0")"
 ETC_DIR="${XUDO_DIR}/../etc/xudo"
 PLUGINS_DIR="${XUDO_DIR}/../plugins"
 INSTALLED_JSON="${ETC_DIR}/installed.json"
 
-check_deps() { command -v jq >/dev/null 2>&1 || { echo "Error: jq required"; exit 1; }; command -v git >/dev/null 2>&1 || { echo "Error: git required"; exit 1; }; }
+check_deps() {
+    command -v jq >/dev/null 2>&1 || { echo "Error: jq required"; exit 1; }
+    command -v git >/dev/null 2>&1 || { echo "Error: git required"; exit 1; }
+}
 
-load_installed() { [ -f "$INSTALLED_JSON" ] && INSTALLED=$(cat "$INSTALLED_JSON") || INSTALLED='{"plugins": {}}'; }
+load_installed() {
+    [ -f "$INSTALLED_JSON" ] && INSTALLED=$(cat "$INSTALLED_JSON") || INSTALLED='{"plugins": {}}'
+}
+
 save_installed() { echo "$INSTALLED" > "$INSTALLED_JSON"; }
 
 is_installed() { echo "$INSTALLED" | jq -e ".plugins.\"${1}\"" >/dev/null 2>&1; }
@@ -21,23 +27,88 @@ cmd_install() {
     local plugin_name=$(echo "$repo_name" | tr '[:upper:]' '[:lower:]')
     local plugin_dir="${PLUGINS_DIR}/${plugin_name}"
     is_installed "$plugin_name" && { echo "Already installed"; return 0; }
-    [ "$no_prompt" = false ] && { read -p "Install? [y/N] " -n1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && return 0; }
+    [ "$no_prompt" = false ] && { read -p "Install ${plugin_name}? [y/N] " -n1 -r; echo; [[ ! $REPLY =~ ^[Yy]$ ]] && return 0; }
     git clone --depth 1 "$url" "$plugin_dir" 2>/dev/null || { echo "Clone failed"; return 1; }
     [ -f "${plugin_dir}/plugin.json" ] || { rm -rf "$plugin_dir"; echo "No plugin.json"; return 1; }
     local pver=$(get_plugin_info "$plugin_dir" "version")
     echo "Installing ${plugin_name} v${pver}"
     [ -f "${plugin_dir}/install.sh" ] && (cd "$plugin_dir" && bash install.sh) || true
-    INSTALLED=$(echo "$INSTALLED" | jq ".plugins + \"{\"${plugin_name}\": {\"version\": \"${pver}\"}}\")
+    INSTALLED=$(echo "$INSTALLED" | jq ".plugins + {\"${plugin_name}\": {\"version\": \"${pver}\", \"url\": \"$url\", \"installed_at\": \"$(date -Iseconds)\"}}")
     save_installed
     echo "Installed!"
 }
 
 cmd_uninstall() {
-    local plugin_dir="${PLUGINS_DIR}/$1"
-    [ -d "$plugin_dir" ] || { echo "Not found"; return 1; }
-    [ -f "${plugin_dir}/uninstall.sh" ] && (cd "$plugin_dir" && bash uninstall.sh) || true
-    rm -rf "$plugin_dir"
+    local pd="${PLUGINS_DIR}/$1"
+    [ -d "$pd" ] || { echo "Not found"; return 1; }
+    [ -f "${pd}/uninstall.sh" ] && (cd "$pd" && bash uninstall.sh) || true
+    rm -rf "$pd"
     INSTALLED=$(echo "$INSTALLED" | jq "del(.plugins.\"$1\")")
     save_installed
     echo "Uninstalled!"
 }
+
+cmd_update() {
+    if [ "$1" = "all" ]; then
+        for pn in $(echo "$INSTALLED" | jq -r '.plugins | keys[]'); do
+            local pd="${PLUGINS_DIR}/$pn"
+            [ -d "$pd" ] && (cd "$pd" && git pull) || true
+            [ -f "${pd}/update.sh" ] && bash "${pd}/update.sh" || true
+            local nv=$(get_plugin_info "$pd" "version")
+            INSTALLED=$(echo "$INSTALLED" | jq ".plugins.\"$pn\".version = \"$nv\"")
+            save_installed
+            echo "$pn -> v$nv"
+        done
+    else
+        local pd="${PLUGINS_DIR}/$1"
+        [ -d "$pd" ] || { echo "Not found"; return 1; }
+        (cd "$pd" && git pull) || true
+        [ -f "${pd}/update.sh" ] && bash "${pd}/update.sh" || true
+        local nv=$(get_plugin_info "$pd" "version")
+        INSTALLED=$(echo "$INSTALLED" | jq ".plugins.\"$1\".version = \"$nv\"")
+        save_installed
+        echo "$1 -> v$nv"
+    fi
+}
+
+cmd_list() {
+    local plugins=$(echo "$INSTALLED" | jq -r '.plugins | keys[]')
+    [ -z "$plugins" ] && { echo "No plugins installed"; return; }
+    echo "Installed Plugins:"
+    for pn in $plugins; do
+        local pv=$(echo "$INSTALLED" | jq -r ".plugins.\"$pn\".version")
+        printf "  %-20s v%s\n" "$pn" "$pv"
+    done
+}
+
+cmd_info() {
+    local pd="${PLUGINS_DIR}/$1"
+    [ -f "${pd}/plugin.json" ] || { echo "Not found"; return 1; }
+    echo "name: $(get_plugin_info "$pd" "name")"
+    echo "version: $(get_plugin_info "$pd" "version")"
+    echo "description: $(get_plugin_info "$pd" "description")"
+    echo "author: $(get_plugin_info "$pd" "author")"
+}
+
+cmd_help() {
+    echo "XUDO - Novix Plugin Manager v1.0.0"
+    echo "Usage:"
+    echo "  xudo install <url> [-p]   Install from GitHub"
+    echo "  xudo uninstall <name>     Remove plugin"
+    echo "  xudo update all|<name>   Update plugins"
+    echo "  xudo list                List plugins"
+    echo "  xudo info <name>          Plugin info"
+    echo "  xudo help                 This help"
+}
+
+check_deps; load_installed
+[ $# -eq 0 ] && { cmd_help; exit 0; }
+case "$1" in
+    install) shift; cmd_install "$@";;
+    uninstall) shift; cmd_uninstall "$@";;
+    update) shift; cmd_update "$@";;
+    list) cmd_list;;
+    info) shift; cmd_info "$@";;
+    help|--help|-h) cmd_help;;
+    *) echo "Unknown: $1"; cmd_help; exit 1;;
+esac

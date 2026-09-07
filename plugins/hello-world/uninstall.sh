@@ -1,3 +1,3 @@
 #!/bin/bash
-echo "Uninstalling hello-world plugin..."
+echo "Uninstalling hello-world..."
 rm -f hello hello.o
