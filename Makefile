@@ -41,17 +41,14 @@ LIB_SRC = \
 	lib/string.c \
 	lib/stdlib.c
 
+# All C sources
+ALL_C_SRC = $(KERNEL_SRC) $(DRIVERS_SRC) $(MEMORY_SRC) $(PROCESS_SRC) $(SYSCALL_SRC) $(LIB_SRC)
+
 # Object files
 ENTRY_OBJ = $(BUILD_DIR)/entry.o
 KERNEL_OBJ = $(BUILD_DIR)/kernel.o
 
-DRIVER_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(DRIVERS_SRC))
-MEMORY_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(MEMORY_SRC))
-PROCESS_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(PROCESS_SRC))
-SYSCALL_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SYSCALL_SRC))
-LIB_OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(LIB_SRC))
-
-KERNEL_OBJS = $(ENTRY_OBJ) $(KERNEL_OBJ) $(DRIVER_OBJS) $(MEMORY_OBJS) $(PROCESS_OBJS) $(SYSCALL_OBJS) $(LIB_OBJS)
+ALL_OBJS = $(ENTRY_OBJ) $(ALL_C_SRC:$(BUILD_DIR)/%.o)
 
 all: $(KERNEL_BIN) $(ISO_IMAGE)
 
@@ -60,45 +57,20 @@ $(BOOT_BIN): $(BOOT_SRC)
 	mkdir -p $(@D)
 	$(AS) -f bin -o $@ $<
 
-# Entry point
+# Entry point (assembly)
 $(BUILD_DIR)/entry.o: $(ENTRY_SRC)
 	mkdir -p $(@D)
 	$(AS) -f elf64 -o $@ $<
 
-# Kernel
-$(BUILD_DIR)/kernel.o: $(KERNEL_SRC)
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# Drivers
-$(BUILD_DIR)/%.o: drivers/%.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# Memory
-$(BUILD_DIR)/%.o: kernel/memory/%.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# Process
-$(BUILD_DIR)/%.o: kernel/process/%.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# Syscall
-$(BUILD_DIR)/%.o: kernel/syscall/%.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# Library
-$(BUILD_DIR)/%.o: lib/%.c
+# Universal rule for ALL C files
+$(BUILD_DIR)/%.o: %.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Link kernel ELF
-$(BUILD_DIR)/kernel.elf: $(KERNEL_OBJS)
+$(BUILD_DIR)/kernel.elf: $(ALL_OBJS)
 	mkdir -p $(@D)
-	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(ALL_OBJS)
 
 # Combine boot.bin + kernel.elf into final binary
 $(KERNEL_BIN): $(BOOT_BIN) $(BUILD_DIR)/kernel.elf
