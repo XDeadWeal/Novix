@@ -10,6 +10,5 @@ SECTIONS
     .text : { *(.text) *(.rodata) }
     .data : { *(.data) }
     .bss : { *(.bss) }
-    .boot : { *(.boot) }
     _end = .;
 }

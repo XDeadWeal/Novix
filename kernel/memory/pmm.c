@@ -28,17 +28,22 @@ static int pmm_test_bit(uint32_t page) {
 
 void* pmm_alloc_page() {
     for (uint32_t i = 0; i < PMM_MAX_PAGES; i++) {
-        if (!pmm_test_bit(i)) { pmm_set_bit(i); return (void*)(i * 0x1000); }
+        if (!pmm_test_bit(i)) {
+            pmm_set_bit(i);
+            return (void*)(i * 0x1000);
+        }
     }
     return 0;
 }
 
 void pmm_free_page(void* addr) {
-    pmm_clear_bit((uint32_t)addr / 0x1000);
+    uint32_t page = (uint32_t)addr / 0x1000;
+    pmm_clear_bit(page);
 }
 
 void* pmm_alloc_pages(uint32_t count) {
-    uint32_t start = 0, free_count = 0;
+    uint32_t start = 0;
+    uint32_t free_count = 0;
     for (uint32_t i = 0; i < PMM_MAX_PAGES; i++) {
         if (!pmm_test_bit(i)) {
             free_count++;
@@ -46,7 +51,10 @@ void* pmm_alloc_pages(uint32_t count) {
                 for (uint32_t j = 0; j < count; j++) pmm_set_bit(start + j);
                 return (void*)(start * 0x1000);
             }
-        } else { free_count = 0; start = i + 1; }
+        } else {
+            free_count = 0;
+            start = i + 1;
+        }
     }
     return 0;
 }

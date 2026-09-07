@@ -1,8 +1,12 @@
 #include <kernel/syscall/syscall.h>
 #include <kernel/vga.h>
 #include <kernel/keyboard.h>
+#include <stdint.h>
 
 static syscall_handler_t syscall_handlers[SYSCALL_MAX];
+
+static uint64_t syscall_write(uint64_t fd, uint64_t buf, uint64_t count);
+static uint64_t syscall_read(uint64_t fd, uint64_t buf, uint64_t count);
 
 void syscall_init() {
     for (int i = 0; i < SYSCALL_MAX; i++) syscall_handlers[i] = 0;
@@ -21,13 +25,13 @@ uint64_t syscall_handle(uint32_t num, uint64_t arg1, uint64_t arg2, uint64_t arg
     return -1;
 }
 
-uint64_t syscall_write(uint64_t fd, uint64_t buf, uint64_t count) {
+static uint64_t syscall_write(uint64_t fd, uint64_t buf, uint64_t count) {
     char* buffer = (char*)buf;
     for (uint64_t i = 0; i < count; i++) vga_put_char(buffer[i]);
     return count;
 }
 
-uint64_t syscall_read(uint64_t fd, uint64_t buf, uint64_t count) {
+static uint64_t syscall_read(uint64_t fd, uint64_t buf, uint64_t count) {
     char* buffer = (char*)buf;
     for (uint64_t i = 0; i < count; i++) {
         char c = keyboard_get_char();
