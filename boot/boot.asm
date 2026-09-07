@@ -12,11 +12,12 @@ start:
     mov [boot_drive], dl
 
     ; Load kernel from disk to 0x10000 (segment 0x1000:0x0000)
+    ; Read 48 sectors = 24KB from sector 2
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
     mov ah, 0x02        ; Read sectors function
-    mov al, 64          ; 64 sectors = 32KB (enough for kernel)
+    mov al, 48          ; 48 sectors = 24KB
     mov ch, 0           ; Cylinder 0
     mov cl, 2           ; Start at sector 2
     mov dh, 0           ; Head 0
@@ -87,7 +88,7 @@ protected_mode:
     ; Copy kernel from 0x10000 to 0x100000 (1MB)
     mov esi, 0x10000
     mov edi, 0x100000
-    mov ecx, 16384      ; 64KB / 4 bytes
+    mov ecx, 6144       ; 24KB / 4 bytes
     rep movsd
 
     ; Debug: print '5' = kernel copied
