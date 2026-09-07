@@ -1,5 +1,3 @@
-OUTPUT_FORMAT("elf64-x86-64")
-OUTPUT_ARCH(amd64)
 ENTRY(_start)
 
 BASE_ADDRESS = 0x100000;
@@ -7,7 +5,7 @@ BASE_ADDRESS = 0x100000;
 SECTIONS
 {
     . = BASE_ADDRESS;
-    .text : { *(.text) *(.rodata) }
+    .text : { *(.text) *(.rodata) *(.rdata) }
     .data : { *(.data) }
     .bss : { *(.bss) }
     _end = .;

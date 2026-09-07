@@ -1,11 +1,10 @@
 AS = nasm
 CC = gcc
-LD = ld
 OBJCOPY = objcopy
 QEMU = qemu-system-x86_64
 
 CFLAGS = -m64 -ffreestanding -O2 -Wall -Wextra -nostdlib -Iinclude -I.
-LDFLAGS = -m elf_x86_64 -T boot/link.ld
+LDFLAGS = -m64 -ffreestanding -nostdlib -T boot/link.ld
 
 BUILD_DIR = build
 BIN_DIR = bin
@@ -39,22 +38,22 @@ $(BOOT_BIN): boot/boot.asm
 	mkdir -p $(@D)
 	$(AS) -f bin -o $@ $<
 
-# Entry point - ELF64 object
+# Entry point - win64 object (MinGW-compatible)
 $(BUILD_DIR)/kernel/entry.o: kernel/entry.asm
 	mkdir -p $(@D)
-	$(AS) -f elf64 -o $@ $<
+	$(AS) -f win64 -o $@ $<
 
 # Generic pattern rule for all C files
 $(BUILD_DIR)/%.o: %.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# Link kernel ELF
+# Link kernel using gcc (MinGW ld only supports PE, not ELF)
 $(KERNEL_ELF): $(KERNEL_OBJS) boot/link.ld
 	mkdir -p $(@D)
-	$(LD) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(KERNEL_OBJS)
 
-# Convert ELF to raw binary
+# Convert to raw binary
 $(KERNEL_RAW): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@
 

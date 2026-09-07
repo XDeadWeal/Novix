@@ -26,12 +26,14 @@ uint64_t syscall_handle(uint32_t num, uint64_t arg1, uint64_t arg2, uint64_t arg
 }
 
 static uint64_t syscall_write(uint64_t fd, uint64_t buf, uint64_t count) {
+    (void)fd;
     char* buffer = (char*)buf;
     for (uint64_t i = 0; i < count; i++) vga_put_char(buffer[i]);
     return count;
 }
 
 static uint64_t syscall_read(uint64_t fd, uint64_t buf, uint64_t count) {
+    (void)fd;
     char* buffer = (char*)buf;
     for (uint64_t i = 0; i < count; i++) {
         char c = keyboard_get_char();

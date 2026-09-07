@@ -1,5 +1,5 @@
 BITS 64
-section .text
+section .text code
 global _start
 _start:
     mov ax, 0x10

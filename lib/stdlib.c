@@ -12,6 +12,7 @@ void* malloc(size_t size) {
 }
 
 void free(void* ptr) {
+    (void)ptr;
     heap_ptr = 0;
 }
 
