@@ -4,7 +4,7 @@ LD = ld
 OBJCOPY = objcopy
 QEMU = qemu-system-x86_64
 
-CFLAGS = -m64 -ffreestanding -O2 -Wall -Wextra -nostdlib -Iinclude
+CFLAGS = -m64 -ffreestanding -O2 -Wall -Wextra -nostdlib -Iinclude -I.
 LDFLAGS = -m elf_x86_64 -nostdlib -T boot/link.ld -no-pie
 
 BUILD_DIR = build
