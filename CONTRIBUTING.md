@@ -29,3 +29,10 @@ Before submitting changes:
 - Include detailed steps to reproduce
 - Specify your environment (OS, compiler versions)
 - Provide error messages and logs
+
+## Contributors
+
+| Name | Role | Contribution |
+|------|------|-------------|
+| XDeadWeal (Рома Стеганцов) | Creator, architect, lead developer | ~87% |
+| Vibe AI (GLM-5.2) | Build fixes, bootloader, linker, bug fixes | ~13% |
