@@ -57,15 +57,14 @@ $(KERNEL_ELF): $(KERNEL_OBJS) boot/link.ld
 $(KERNEL_RAW): $(KERNEL_ELF)
 	$(OBJCOPY) -O binary $< $@
 
-# Combine boot + kernel into final binary, pad to 1.44MB floppy
+# Combine boot + kernel into final binary
 $(KERNEL_BIN): $(BOOT_BIN) $(KERNEL_RAW)
 	mkdir -p $(@D)
 	cat $(BOOT_BIN) $(KERNEL_RAW) > $@
-	dd if=/dev/zero bs=1 count=0 seek=1474560 of=$@ 2>/dev/null || true
 
 # Run in QEMU as floppy disk
 run: $(KERNEL_BIN)
-	$(QEMU) -fda $(KERNEL_BIN) -m 512M -serial stdio -no-reboot -no-shutdown
+	$(QEMU) -drive file=$(KERNEL_BIN),format=raw,if=floppy -m 512M -serial stdio -no-reboot
 
 clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)

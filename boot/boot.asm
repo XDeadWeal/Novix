@@ -16,7 +16,7 @@ start:
     mov es, ax
     xor bx, bx
     mov ah, 0x02        ; Read sectors function
-    mov al, 128         ; 128 sectors = 64KB
+    mov al, 64          ; 64 sectors = 32KB (enough for kernel)
     mov ch, 0           ; Cylinder 0
     mov cl, 2           ; Start at sector 2
     mov dh, 0           ; Head 0
@@ -24,11 +24,21 @@ start:
     int 0x13
     jc disk_error
 
+    ; Debug: print '1' = disk read OK
+    mov al, '1'
+    mov ah, 0x0E
+    int 0x10
+
     ; Enable A20 line via fast A20
     in al, 0x92
     or al, 2
     and al, 0xFE        ; Do not reset!
     out 0x92, al
+
+    ; Debug: print '2' = A20 enabled
+    mov al, '2'
+    mov ah, 0x0E
+    int 0x10
 
     ; Load GDT
     lgdt [gdt_descriptor]
@@ -37,6 +47,11 @@ start:
     mov eax, cr0
     or eax, 1           ; Set PE bit
     mov cr0, eax
+
+    ; Debug: print '3' = PE enabled
+    mov al, '3'
+    mov ah, 0x0E
+    int 0x10
 
     ; Far jump to 32-bit code segment (flush pipeline)
     jmp 0x08:protected_mode
@@ -65,11 +80,19 @@ protected_mode:
     mov ss, ax
     mov esp, 0x90000
 
+    ; Debug: print '4' = in 32-bit mode
+    mov byte [0xB8000], '4'
+    mov byte [0xB8001], 0x0F
+
     ; Copy kernel from 0x10000 to 0x100000 (1MB)
     mov esi, 0x10000
     mov edi, 0x100000
     mov ecx, 16384      ; 64KB / 4 bytes
     rep movsd
+
+    ; Debug: print '5' = kernel copied
+    mov byte [0xB8002], '5'
+    mov byte [0xB8003], 0x0F
 
     ; ===== Set up paging for long mode =====
     ; Identity map first 2MB using 2MB pages
@@ -110,19 +133,27 @@ protected_mode:
     or eax, 0x80000000
     mov cr0, eax
 
+    ; Debug: print '6' = paging enabled
+    mov byte [0xB8004], '6'
+    mov byte [0xB8005], 0x0F
+
     ; Far jump to 64-bit code segment
     jmp 0x18:long_mode
 
 ; ===== 64-bit Long Mode =====
 BITS 64
 long_mode:
-    mov ax, 0x10        ; Data segment (works in long mode)
+    mov ax, 0x20        ; 64-bit data segment
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
     mov rsp, 0x90000
+
+    ; Debug: print '7' = in 64-bit mode
+    mov byte [0xB8006], '7'
+    mov byte [0xB8007], 0x0F
 
     ; Jump to kernel entry at 1MB
     jmp 0x100000
@@ -142,7 +173,7 @@ gdt:
     db 0x00, 0x9A, 0xAF, 0x00
     ; 64-bit data segment (selector 0x20)
     dw 0x0000, 0x0000
-    db 0x00, 0x92, 0xAF, 0x00
+    db 0x00, 0x92, 0xCF, 0x00
 gdt_end:
 
 gdt_descriptor:
