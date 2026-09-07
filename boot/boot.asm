@@ -1,8 +1,6 @@
 ; Novix OS - Minimal Bootloader (16-bit Real Mode)
 BITS 16
 
-KERNEL_LOAD_ADDR equ 0x100000
-
 start:
     xor ax, ax
     mov ds, ax
@@ -11,7 +9,7 @@ start:
     mov sp, 0x7C00
     mov [boot_drive], dl
 
-    ; Load kernel from disk
+    ; Load kernel from disk (to 0x10000)
     mov ax, 0x1000
     mov es, ax
     xor bx, bx
@@ -31,8 +29,8 @@ start:
     or al, 2
     out 0x92, al
 
-    ; Jump to kernel at 0x100000 (1MB)
-    jmp 0x0000:0x100000
+    ; Far jump to kernel at 0x1000:0000
+    jmp 0x1000:0x0000
 
 boot_drive db 0
 
