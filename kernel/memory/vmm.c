@@ -8,7 +8,6 @@ static uint64_t* pml4t = 0;
 void vmm_init() {
     pml4t = (uint64_t*)pmm_alloc_page();
     memset(pml4t, 0, 0x1000);
-    __asm__ __volatile__ ("mov %0, %%cr3" : : "r"(pml4t) : "memory");
 
     uint64_t* pdpt = (uint64_t*)pmm_alloc_page();
     memset(pdpt, 0, 0x1000);
