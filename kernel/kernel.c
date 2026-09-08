@@ -18,7 +18,6 @@ void kernel_main() {
 
     vga_set_color(0x0F, 0x01);
     
-    /* Direct VGA output */
     const char banner[] = 
         "
 "
@@ -42,7 +41,8 @@ void kernel_main() {
 "
         "Type to test keyboard input.
 
-> ";
+"
+        "> ";
     
     for (int i = 0; banner[i]; i++) {
         vga_put_char(banner[i]);
