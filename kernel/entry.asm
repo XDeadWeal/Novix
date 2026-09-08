@@ -5,7 +5,7 @@ _start:
     ; Debug: print K = kernel entry reached
     mov byte [0xB8008], 0x4B
     mov byte [0xB8009], 0x0F
-    mov ax, 0x10
+    mov ax, 0x20
     mov ds, ax
     mov es, ax
     mov fs, ax
