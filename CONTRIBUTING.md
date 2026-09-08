@@ -1,38 +1,42 @@
 # Contributing to Novix OS
 
-Thank you for your interest in contributing to Novix OS!
+Спасибо за интерес к развитию Novix OS!
 
-## How to Contribute
+## 🤝 Как внести вклад
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Форкните репозиторий
+2. Создайте ветку для новой функции (`git checkout -b feature/amazing-feature`)
+3. Зафиксируйте изменения (`git commit -m 'Add amazing feature'`)
+4. Отправьте изменения в ветку (`git push origin feature/amazing-feature`)
+5. Откройте Pull Request
 
-## Code Style
+## 💻 Стиль кода
 
-- Use consistent indentation (4 spaces)
-- Keep functions short and focused
-- Comment complex logic
-- Follow the existing code style
+- Используйте отступы в 4 пробела (не табуляцию)
+- Держите функции короткими и сфокусированными
+- Комментируйте сложную логику
+- Следуйте существующему стилю кода
 
-## Testing
+## ✅ Тестирование
 
-Before submitting changes:
-- Test in QEMU: `make run`
-- Ensure no compilation warnings
-- Verify all subsystems work correctly
+Перед отправкой изменений:
+- Тестируйте в QEMU: `make run`
+- Убедитесь в отсутствии предупреждений компиляции
+- Проверьте, что все подсистемы работают корректно
 
-## Reporting Issues
+## 🐛 Сообщение об ошибках
 
-- Include detailed steps to reproduce
-- Specify your environment (OS, compiler versions)
-- Provide error messages and logs
+- Включите детальные шаги для воспроизведения
+- Укажите свою среду (OC, версии компиляторов)
+- Предоставьте сообщения об ошибках и логи
 
-## Contributors
+## 👥 Разработчики
 
-| Name | Role | Contribution |
-|------|------|-------------|
-| XDeadWeal | Creator, architect, lead developer | ~87% |
-| Vibe AI (Mistral AI) | Build system, bootloader, linker fixes, bug fixes | ~13% |
+| Имя | Роль | Вклад |
+|-----|------|-------|
+| Рома Стеганцов | Создатель, архитектор, ведущий разработчик | ~87% |
+| Mistral AI | Система сборки, bootloader, исправление ошибок линковщика, оптимизация | ~13% |
+
+---
+
+Спасибо за вклад в развитие Novix OS! 🚀
