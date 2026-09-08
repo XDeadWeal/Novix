@@ -55,7 +55,7 @@ start:
     mov cr0, eax
 
     ; Far jump to 32-bit code segment (flush pipeline)
-    jmp 0x08:protected_mode
+    jmp 0x08:init_pm
 
 disk_error:
     mov si, msg_err
@@ -72,7 +72,7 @@ disk_error:
 
 ; ===== 32-bit Protected Mode =====
 BITS 32
-protected_mode:
+init_pm:
     mov ax, 0x10        ; 32-bit data segment
     mov ds, ax
     mov es, ax
