@@ -18,6 +18,7 @@ void kernel_main() {
 
     vga_set_color(0x0F, 0x01);
     
+    /* Direct VGA output */
     const char banner[] = 
         "
 "
@@ -37,9 +38,6 @@ void kernel_main() {
         "Syscalls: Ready
 "
         "Serial: Ready
-
-"
-        "Type to test keyboard input.
 
 "
         "> ";
