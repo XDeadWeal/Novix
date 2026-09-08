@@ -54,6 +54,10 @@ start:
     or eax, 1           ; Set PE bit
     mov cr0, eax
 
+    ; Debug: write '4' to VGA (protected mode, no BIOS)
+    mov byte [0xB8000], '4'
+    mov byte [0xB8001], 0x0F
+
     ; Far jump to 32-bit code segment (flush pipeline)
     jmp 0x08:init_pm
 
@@ -81,9 +85,9 @@ init_pm:
     mov ss, ax
     mov esp, 0x90000
 
-    ; Debug: print '4' = in 32-bit mode
-    mov byte [0xB8000], '4'
-    mov byte [0xB8001], 0x0F
+    ; Debug: print '5' = in 32-bit mode
+    mov byte [0xB8002], '5'
+    mov byte [0xB8003], 0x0F
 
     ; Copy kernel from 0x10000 to 0x100000 (1MB)
     mov esi, 0x10000
@@ -91,9 +95,9 @@ init_pm:
     mov ecx, 4096       ; 16KB / 4 bytes
     rep movsd
 
-    ; Debug: print '5' = kernel copied
-    mov byte [0xB8002], '5'
-    mov byte [0xB8003], 0x0F
+    ; Debug: print '6' = kernel copied
+    mov byte [0xB8004], '6'
+    mov byte [0xB8005], 0x0F
 
     ; ===== Set up paging for long mode =====
     ; Identity map first 2MB using 2MB pages
@@ -134,9 +138,9 @@ init_pm:
     or eax, 0x80000000
     mov cr0, eax
 
-    ; Debug: print '6' = paging enabled
-    mov byte [0xB8004], '6'
-    mov byte [0xB8005], 0x0F
+    ; Debug: print '7' = paging enabled
+    mov byte [0xB8006], '7'
+    mov byte [0xB8007], 0x0F
 
     ; Far jump to 64-bit code segment
     jmp 0x18:long_mode
@@ -152,9 +156,9 @@ long_mode:
     mov ss, ax
     mov rsp, 0x90000
 
-    ; Debug: print '7' = in 64-bit mode
-    mov byte [0xB8006], '7'
-    mov byte [0xB8007], 0x0F
+    ; Debug: print '8' = in 64-bit mode
+    mov byte [0xB8008], '8'
+    mov byte [0xB8009], 0x0F
 
     ; Jump to kernel entry at 1MB
     jmp 0x100000
