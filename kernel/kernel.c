@@ -22,6 +22,8 @@ void kernel_main() {
 "
         "========================================
 "
+        "
+"
         "System initialized.
 "
         "Memory: PMM & VMM ready
@@ -31,10 +33,12 @@ void kernel_main() {
         "Syscalls: Ready
 "
         "Serial: Ready
-
+"
+        "
 "
         "Type to test keyboard input.
-
+"
+        "
 "
         "> ";
     
