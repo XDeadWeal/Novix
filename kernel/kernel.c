@@ -19,28 +19,17 @@ void kernel_main() {
     vga_set_color(0x0F, 0x01);
     
     const char banner[] = "Novix OS v0.1 - 64-bit Kernel
-"
-"========================================
-"
-"
-"
-"System initialized.
-"
-"Memory: PMM & VMM ready
-"
-"Scheduler: Ready
-"
-"Syscalls: Ready
-"
-"Serial: Ready
-"
-"
-"
-"Type to test keyboard input.
-"
-"
-"
-"> ";
+" "========================================
+" "
+" "System initialized.
+" "Memory: PMM & VMM ready
+" "Scheduler: Ready
+" "Syscalls: Ready
+" "Serial: Ready
+" "
+" "Type to test keyboard input.
+" "
+" "> ";
     
     for (int i = 0; banner[i]; i++) {
         vga_put_char(banner[i]);
