@@ -34,5 +34,5 @@ Before submitting changes:
 
 | Name | Role | Contribution |
 |------|------|-------------|
-| XDeadWeal (Рома Стеганцов) | Creator, architect, lead developer | ~87% |
-| Vibe AI (GLM-5.2 by Mistral) | Build system, bootloader, linker fixes, bug fixes | ~13% |
+| XDeadWeal | Creator, architect, lead developer | ~87% |
+| Vibe AI (Mistral AI) | Build system, bootloader, linker fixes, bug fixes | ~13% |
